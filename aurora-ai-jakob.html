@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora AI - Created by Jakob</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+        .aurora-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #0a1128 0%, #1a2f4a 50%, #0f1922 100%);
+            z-index: -2;
+        }
+        .stars { position: fixed; width: 100%; height: 100%; z-index: -1; }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        .aurora {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        .aurora-wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            animation: aurora-flow 20s linear infinite;
+            filter: blur(50px);
+        }
+        .aurora-wave:nth-child(1) {
+            top: 10%;
+            animation-duration: 15s;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 157, 0.2) 25%, rgba(64, 224, 208, 0.2) 40%, transparent 100%);
+        }
+        .aurora-wave:nth-child(2) {
+            top: 30%;
+            animation-duration: 20s;
+            animation-delay: -5s;
+            background: linear-gradient(90deg, transparent 0%, rgba(138, 43, 226, 0.2) 30%, rgba(255, 105, 180, 0.2) 60%, transparent 100%);
+        }
+        .aurora-wave:nth-child(3) {
+            top: 50%;
+            animation-duration: 25s;
+            animation-delay: -10s;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 157, 0.2) 40%, rgba(138, 43, 226, 0.2) 70%, transparent 100%);
+        }
+        @keyframes aurora-flow {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 17, 40, 0.95);
+        }
+        .login-screen.hide { display: none; }
+        .login-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 48px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 255, 157, 0.2);
+        }
+        .aurora-logo-big {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+        }
+        .login-title {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .key-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            letter-spacing: 2px;
+            outline: none;
+            margin-bottom: 24px;
+        }
+        .key-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: normal;
+        }
+        .key-input:focus {
+            border-color: rgba(0, 255, 157, 0.5);
+            box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00ff9d 0%, #8a2be2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 255, 157, 0.3);
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 255, 157, 0.4);
+        }
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 16px;
+            display: none;
+        }
+        .error-message.show { display: block; }
+        .success-message {
+            color: #00ff9d;
+            font-size: 14px;
+            margin-top: 16px;
+            display: none;
+        }
+        .success-message.show { display: block; }
+        .header {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 17, 40, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .aurora-logo-svg { width: 40px; height: 40px; }
+        .status-badge {
+            padding: 4px 12px;
+            background: rgba(0, 255, 157, 0.2);
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            border-radius: 12px;
+            font-size: 12px;
+            color: #00ff9d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff9d;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .greeting {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .subtext {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 48px;
+            text-align: center;
+        }
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 32px;
+            padding: 0 20px;
+        }
+        .search-box {
+            position: relative;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 4px;
+        }
+        .search-box:focus-within {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(0, 255, 157, 0.4);
+            box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.1);
+        }
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 16px 110px 16px 24px;
+            font-size: 16px;
+            color: white;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+        }
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .search-actions {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .attach-btn, .search-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .attach-btn {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .attach-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .search-btn {
+            background: linear-gradient(135deg, #00ff9d 0%, #8a2be2 100%);
+        }
+        .search-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .file-input { display: none; }
+        .attached-files {
+            padding: 8px 24px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .attached-file {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .remove-file {
+            cursor: pointer;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 20px;
+            margin-bottom: 48px;
+        }
+        .quick-action {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .quick-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+        }
+        .chat-messages.active { display: block; }
+        .message {
+            max-width: 800px;
+            margin: 0 auto 24px;
+            animation: fadeInUp 0.3s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .message.user .message-avatar { background: rgba(255, 255, 255, 0.15); }
+        .message.ai .message-avatar { background: linear-gradient(135deg, #00ff9d 0%, #8a2be2 100%); }
+        .message-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .message-time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: auto;
+        }
+        .message-content {
+            padding-left: 44px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .message-image {
+            max-width: 400px;
+            border-radius: 12px;
+            margin: 12px 0;
+        }
+        .message-actions {
+            padding-left: 44px;
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .message-action-btn {
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+        .message-action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .welcome-screen.hide { display: none; }
+        .footer {
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 17, 40, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .offline-notice {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 16px 20px;
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 14px;
+            display: none;
+        }
+        .offline-notice.show { display: block; }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg"></div>
+    <div class="stars" id="stars"></div>
+    <div class="aurora">
+        <div class="aurora-wave"></div>
+        <div class="aurora-wave"></div>
+        <div class="aurora-wave"></div>
+    </div>
+
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <svg class="aurora-logo-big" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="auroraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00ff9d"/>
+                        <stop offset="50%" style="stop-color:#40e0d0"/>
+                        <stop offset="100%" style="stop-color:#8a2be2"/>
+                    </linearGradient>
+                </defs>
+                <path d="M 10 40 Q 30 30, 50 40 T 90 40" stroke="url(#auroraGradient)" stroke-width="4" fill="none" opacity="0.8"/>
+                <path d="M 10 50 Q 30 60, 50 50 T 90 50" stroke="url(#auroraGradient)" stroke-width="4" fill="none" opacity="0.6"/>
+                <path d="M 10 60 Q 30 50, 50 60 T 90 60" stroke="url(#auroraGradient)" stroke-width="4" fill="none" opacity="0.4"/>
+                <circle cx="50" cy="25" r="6" fill="#ffffff" opacity="0.9">
+                    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+            <div class="login-title">Welcome to Aurora AI</div>
+            <div class="login-subtitle">Created by Jakob<br>Enter your access key to continue</div>
+            <input type="text" class="key-input" id="keyInput" placeholder="Enter Access Key" autocomplete="off"/>
+            <button class="login-btn" id="loginBtn">Access Aurora</button>
+            <div class="error-message" id="errorMessage">Invalid or already used access key</div>
+            <div class="success-message" id="successMessage">✓ Access granted! Welcome</div>
+        </div>
+    </div>
+
+    <div id="mainApp" style="display: none; height: 100vh; display: flex; flex-direction: column;">
+        <div class="header">
+            <div class="logo">
+                <svg class="aurora-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00ff9d"/>
+                            <stop offset="50%" style="stop-color:#40e0d0"/>
+                            <stop offset="100%" style="stop-color:#8a2be2"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 10 40 Q 30 30, 50 40 T 90 40" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.8"/>
+                    <path d="M 10 50 Q 30 60, 50 50 T 90 50" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.6"/>
+                    <path d="M 10 60 Q 30 50, 50 60 T 90 60" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.4"/>
+                    <circle cx="50" cy="25" r="4" fill="#ffffff" opacity="0.9">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+                <span>Aurora</span>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+            <button class="icon-btn" onclick="auroraAI.newChat()">⊕</button>
+        </div>
+
+        <div class="offline-notice" id="offlineNotice">⚠️ No internet connection detected</div>
+
+        <div class="main-content">
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="greeting">Good afternoon</div>
+                <div class="subtext">What can I help you with today?</div>
+                <div class="search-container">
+                    <div class="search-box">
+                        <div class="attached-files" id="attachedFilesWelcome"></div>
+                        <textarea class="search-input" id="userInput" placeholder="Ask anything..." rows="1"></textarea>
+                        <div class="search-actions">
+                            <button class="attach-btn" onclick="document.getElementById('fileInputWelcome').click()">📎</button>
+                            <button class="search-btn" id="sendBtn">→</button>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInputWelcome" class="file-input" multiple accept="image/*,.pdf,.txt,.doc,.docx">
+                </div>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Write Python code')">Write Python</div>
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Debug code')">Debug code</div>
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Explain JavaScript')">Explain JS</div>
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Create HTML')">Create HTML</div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+        </div>
+
+        <div class="search-container" id="chatInputArea" style="display: none; margin-bottom: 20px;">
+            <div class="search-box">
+                <div class="attached-files" id="attachedFilesChat"></div>
+                <textarea class="search-input" id="chatInput" placeholder="Type message..." rows="1"></textarea>
+                <div class="search-actions">
+                    <button class="attach-btn" onclick="document.getElementById('fileInputChat').click()">📎</button>
+                    <button class="search-btn" id="chatSendBtn">→</button>
+                </div>
+            </div>
+            <input type="file" id="fileInputChat" class="file-input" multiple accept="image/*,.pdf,.txt,.doc,.docx">
+        </div>
+
+        <div class="footer">Aurora AI by Jakob. Requires internet connection.</div>
+    </div>
+
+    <script>
+        const VALID_KEYS = {
+            'Admin': false,
+            'AUR-7K9M-2P4X': false,
+            'AUR-5N8W-3Q6Z': false,
+            'AUR-9R2T-4V7Y': false,
+            'AUR-1H6J-8S3L': false,
+            'AUR-4M9C-7B2N': false,
+            'AUR-6P3D-1K8F': false,
+            'AUR-2X7G-5Q4R': false,
+            'AUR-8W1V-9H6M': false
+        };
+
+        class AuroraAI {
+            constructor() {
+                this.messages = [];
+                this.attachedFiles = [];
+                this.setupEventListeners();
+                this.generateStars();
+                this.updateGreeting();
+                this.checkAuth();
+                this.checkOnlineStatus();
+                this.setupTextareaAutoResize();
+            }
+
+            setupTextareaAutoResize() {
+                [document.getElementById('userInput'), document.getElementById('chatInput')].forEach(textarea => {
+                    if (textarea) {
+                        textarea.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                        });
+                    }
+                });
+            }
+
+            checkOnlineStatus() {
+                const updateStatus = () => {
+                    const notice = document.getElementById('offlineNotice');
+                    navigator.onLine ? notice.classList.remove('show') : notice.classList.add('show');
+                };
+                window.addEventListener('online', updateStatus);
+                window.addEventListener('offline', updateStatus);
+                updateStatus();
+            }
+
+            checkAuth() {
+                const savedKey = localStorage.getItem('aurora_auth_key');
+                const usedKeys = JSON.parse(localStorage.getItem('aurora_used_keys') || '[]');
+                usedKeys.forEach(key => {
+                    if (VALID_KEYS.hasOwnProperty(key) && key !== 'Admin') VALID_KEYS[key] = true;
+                });
+                if (savedKey && VALID_KEYS.hasOwnProperty(savedKey)) {
+                    document.getElementById('loginScreen').classList.add('hide');
+                    document.getElementById('mainApp').style.display = 'flex';
+                }
+            }
+
+            authenticate() {
+                const keyInput = document.getElementById('keyInput');
+                const errorMessage = document.getElementById('errorMessage');
+                const successMessage = document.getElementById('successMessage');
+                const key = keyInput.value.trim();
+
+                if (VALID_KEYS.hasOwnProperty(key) && (key === 'Admin' || !VALID_KEYS[key])) {
+                    if (key !== 'Admin') {
+                        VALID_KEYS[key] = true;
+                        const usedKeys = JSON.parse(localStorage.getItem('aurora_used_keys') || '[]');
+                        usedKeys.push(key);
+                        localStorage.setItem('aurora_used_keys', JSON.stringify(usedKeys));
+                    }
+                    localStorage.setItem('aurora_auth_key', key);
+                    errorMessage.classList.remove('show');
+                    successMessage.classList.add('show');
+                    setTimeout(() => {
+                        document.getElementById('loginScreen').classList.add('hide');
+                        document.getElementById('mainApp').style.display = 'flex';
+                    }, 1000);
+                } else {
+                    successMessage.classList.remove('show');
+                    errorMessage.classList.add('show');
+                    keyInput.value = '';
+                    setTimeout(() => errorMessage.classList.remove('show'), 3000);
+                }
+            }
+
+            generateStars() {
+                const starsContainer = document.getElementById('stars');
+                for (let i = 0; i < 80; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = Math.random() * 2 + 1 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.animationDelay = Math.random() * 3 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            updateGreeting() {
+                const hour = new Date().getHours();
+                let greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+                const greetingEl = document.querySelector('.greeting');
+                if (greetingEl) greetingEl.textContent = greeting;
+            }
+
+            setupEventListeners() {
+                document.getElementById('loginBtn').addEventListener('click', () => this.authenticate());
+                document.getElementById('keyInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.authenticate();
+                });
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage('userInput'));
+                document.getElementById('chatSendBtn').addEventListener('click', () => this.sendMessage('chatInput'));
+                document.getElementById('userInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage('userInput');
+                    }
+                });
+                document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage('chatInput');
+                    }
+                });
+                document.getElementById('fileInputWelcome').addEventListener('change', (e) => this.handleFileUpload(e, 'welcome'));
+                document.getElementById('fileInputChat').addEventListener('change', (e) => this.handleFileUpload(e, 'chat'));
+            }
+
+            handleFileUpload(event, mode) {
+                const files = Array.from(event.target.files);
+                const container = mode === 'welcome' ? 
+                    document.getElementById('attachedFilesWelcome') : 
+                    document.getElementById('attachedFilesChat');
+                files.forEach(file => {
+                    this.attachedFiles.push(file);
+                    const fileEl = document.createElement('div');
+                    fileEl.className = 'attached-file';
+                    fileEl.innerHTML = `<span>${file.name}</span><span class="remove-file" onclick="auroraAI.removeFile('${file.name}', '${mode}')">×</span>`;
+                    container.appendChild(fileEl);
+                });
+                event.target.value = '';
+            }
+
+            removeFile(filename, mode) {
+                this.attachedFiles = this.attachedFiles.filter(f => f.name !== filename);
+                const container = mode === 'welcome' ? 
+                    document.getElementById('attachedFilesWelcome') : 
+                    document.getElementById('attachedFilesChat');
+                Array.from(container.children).forEach(el => {
+                    if (el.textContent.includes(filename)) el.remove();
+                });
+            }
+
+            quickPrompt(text) {
+                document.getElementById('userInput').value = text;
+                this.sendMessage('userInput');
+            }
+
+            async sendMessage(inputId) {
+                if (!navigator.onLine) {
+                    alert('No internet connection. Aurora AI requires WiFi.');
+                    return;
+                }
+                const input = document.getElementById(inputId);
+                const userMessage = input.value.trim();
+                if (!userMessage && this.attachedFiles.length === 0) return;
+
+                document.getElementById('welcomeScreen').classList.add('hide');
+                document.getElementById('chatMessages').classList.add('active');
+                document.getElementById('chatInputArea').style.display = 'block';
+
+                input.value = '';
+                input.style.height = 'auto';
+                document.getElementById('attachedFilesWelcome').innerHTML = '';
+                document.getElementById('attachedFilesChat').innerHTML = '';
+
+                const attachedImages = [];
+                for (const file of this.attachedFiles) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        await new Promise((resolve) => {
+                            reader.onload = (e) => {
+                                attachedImages.push(e.target.result);
+                                resolve();
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                }
+
+                this.addUserMessage(userMessage, attachedImages);
+                this.attachedFiles = [];
+                
+                const typingId = this.addTypingIndicator();
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('chatSendBtn').disabled = true;
+
+                try {
+                    const aiResponse = await this.getAIResponse(userMessage);
+                    this.messages.push({ role: 'user', content: userMessage });
+                    this.messages.push({ role: 'assistant', content: aiResponse });
+                    this.removeMessage(typingId);
+                    await this.streamMessage(aiResponse);
+                } catch (error) {
+                    this.removeMessage(typingId);
+                    this.addAIMessage('Sorry, I encountered an error. Please check your connection and try again.');
+                }
+
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('chatSendBtn').disabled = false;
+                document.getElementById('chatInput').focus();
+            }
+
+            async getAIResponse(message) {
+                const msg = message.toLowerCase();
+                
+                // Jakob creator responses
+                if (msg.includes('who made') || msg.includes('who created') || msg.includes('creator') || msg.includes('built you')) {
+                    return "I was created by Jakob! He built me as an intelligent AI assistant to help with coding and answer questions.";
+                }
+                
+                // Coding responses
+                if (msg.includes('python') && (msg.includes('write') || msg.includes('code'))) {
+                    return "Sure! Here's a Python example:\n\ndef factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n-1)\n\nprint(factorial(5))  # Output: 120\n\nThis calculates the factorial of a number recursively. Would you like me to explain how it works?";
+                }
+                
+                if (msg.includes('javascript') || msg.includes('js')) {
+                    return "JavaScript is a versatile programming language primarily used for web development. It runs in browsers and on servers (Node.js).\n\nKey features:\n- Dynamic typing\n- First-class functions\n- Asynchronous programming (async/await)\n- DOM manipulation\n- Event-driven\n\nWould you like to know about any specific JavaScript concept?";
+                }
+                
+                if (msg.includes('html')) {
+                    return "Here's a basic HTML structure:\n\n<!DOCTYPE html>\n<html>\n<head>\n    <title>My Page</title>\n</head>\n<body>\n    <h1>Welcome</h1>\n    <p>This is a paragraph.</p>\n</body>\n</html>\n\nHTML is the backbone of web pages. Need help with specific HTML elements?";
+                }
+                
+                if (msg.includes('debug') || msg.includes('error') || msg.includes('fix')) {
+                    return "I can help debug your code! To assist you better:\n\n1. Share the error message you're getting\n2. Show me the relevant code\n3. Describe what you expected vs what's happening\n\nCommon debugging tips:\n- Check syntax errors\n- Verify variable names\n- Look for typos\n- Use console.log() to track values\n- Check the browser console for errors\n\nWhat specific issue are you facing?";
+                }
+                
+                if (msg.includes('css')) {
+                    return "CSS (Cascading Style Sheets) styles your HTML. Here's an example:\n\n.container {\n    width: 100%;\n    max-width: 1200px;\n    margin: 0 auto;\n    padding: 20px;\n}\n\n.button {\n    background: #007bff;\n    color: white;\n    padding: 10px 20px;\n    border: none;\n    border-radius: 5px;\n}\n\nWhat would you like to style?";
+                }
+                
+                // General responses
+                if (msg.includes('hello') || msg.includes('hi')) {
+                    return "Hello! I'm Aurora AI, created by Jakob. How can I help you today with coding or any questions you have?";
+                }
+                
+                if (msg.includes('how are you')) {
+                    return "I'm functioning perfectly, thank you! Ready to help you with any coding questions or tasks. What would you like to work on?";
+                }
+                
+                if (msg.includes('help')) {
+                    return "I can help you with:\n\n- Writing code in Python, JavaScript, HTML, CSS\n- Debugging and fixing errors\n- Explaining programming concepts\n- Creating web pages\n- Learning new technologies\n- Solving coding problems\n\nJust ask me anything specific you need help with!";
+                }
+                
+                // Default intelligent response
+                return `I understand you're asking about "${message}"\n\nAs Aurora AI (created by Jakob), I can help you with:\n\n- Programming in Python, JavaScript, HTML, CSS, and more\n- Debugging code and fixing errors\n- Explaining concepts clearly\n- Writing clean, working code examples\n- Answering technical questions\n\nCould you provide more details about what specifically you'd like help with? The more specific you are, the better I can assist you!`;
+            }
+
+            async streamMessage(text) {
+                const messageDiv = this.createAIMessageContainer();
+                const contentDiv = messageDiv.querySelector('.message-content');
+                const words = text.split(' ');
+                for (let i = 0; i < words.length; i++) {
+                    contentDiv.textContent += (i === 0 ? '' : ' ') + words[i];
+                    this.scrollToBottom();
+                    await this.delay(30);
+                }
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            addUserMessage(content, images = []) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user';
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let imagesHTML = '';
+                images.forEach(img => {
+                    imagesHTML += `<img src="${img}" class="message-image" alt="Uploaded">`;
+                });
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">👤</div>
+                        <div class="message-name">You</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                    <div class="message-content">${imagesHTML}${content}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            createAIMessageContainer() {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai';
+                messageDiv.id = `msg-${Date.now()}`;
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">✨</div>
+                        <div class="message-name">Aurora</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                    <div class="message-content"></div>
+                    <div class="message-actions">
+                        <button class="message-action-btn" onclick="auroraAI.copyMessage('${messageDiv.id}')">📋 Copy</button>
+                        <button class="message-action-btn" onclick="auroraAI.replyTo('${messageDiv.id}')">↩️ Reply</button>
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+                return messageDiv;
+            }
+
+            addAIMessage(content) {
+                const messageDiv = this.createAIMessageContainer();
+                messageDiv.querySelector('.message-content').textContent = content;
+                this.scrollToBottom();
+            }
+
+            addTypingIndicator() {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai';
+                messageDiv.id = 'typing-indicator';
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">✨</div>
+                        <div class="message-name">Aurora</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+                return 'typing-indicator';
+            }
+
+            removeMessage(id) {
+                const message = document.getElementById(id);
+                if (message) message.remove();
+            }
+
+            copyMessage(messageId) {
+                const message = document.getElementById(messageId);
+                const content = message.querySelector('.message-content').innerText;
+                navigator.clipboard.writeText(content);
+                alert('✓ Copied to clipboard');
+            }
+
+            replyTo(messageId) {
+                const message = document.getElementById(messageId);
+                const content = message.querySelector('.message-content').innerText;
+                const input = document.getElementById('chatInput');
+                input.value = `Regarding: "${content.substring(0, 50)}..."\n\n`;
+                input.focus();
+                input.style.height = 'auto';
+                input.style.height = input.scrollHeight + 'px';
+            }
+
+            scrollToBottom() {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            newChat() {
+                this.messages = [];
+                this.attachedFiles = [];
+                document.getElementById('chatMessages').innerHTML = '';
+                document.getElementById('chatMessages').classList.remove('active');
+                document.getElementById('welcomeScreen').classList.remove('hide');
+                document.getElementById('chatInputArea').style.display = 'none';
+                document.getElementById('userInput').value = '';
+                document.getElementById('chatInput').value = '';
+                document.getElementById('attachedFilesWelcome').innerHTML = '';
+                document.getElementById('attachedFilesChat').innerHTML = '';
+            }
+        }
+
+        const auroraAI = new AuroraAI();
+        window.auroraAI = auroraAI;
+    </script>
+</body>
+</html>
