@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora AI - Created by Jakob</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+        .aurora-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #0a1128 0%, #1a2f4a 50%, #0f1922 100%);
+            z-index: -2;
+        }
+        .stars { position: fixed; width: 100%; height: 100%; z-index: -1; }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        .aurora {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        .aurora-wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            animation: aurora-flow 20s linear infinite;
+            filter: blur(50px);
+        }
+        .aurora-wave:nth-child(1) {
+            top: 10%;
+            animation-duration: 15s;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 157, 0.2) 25%, rgba(64, 224, 208, 0.2) 40%, transparent 100%);
+        }
+        .aurora-wave:nth-child(2) {
+            top: 30%;
+            animation-duration: 20s;
+            animation-delay: -5s;
+            background: linear-gradient(90deg, transparent 0%, rgba(138, 43, 226, 0.2) 30%, rgba(255, 105, 180, 0.2) 60%, transparent 100%);
+        }
+        .aurora-wave:nth-child(3) {
+            top: 50%;
+            animation-duration: 25s;
+            animation-delay: -10s;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 157, 0.2) 40%, rgba(138, 43, 226, 0.2) 70%, transparent 100%);
+        }
+        @keyframes aurora-flow {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+        .header {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 17, 40, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .aurora-logo-svg { width: 40px; height: 40px; }
+        .status-badge {
+            padding: 4px 12px;
+            background: rgba(0, 255, 157, 0.2);
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            border-radius: 12px;
+            font-size: 12px;
+            color: #00ff9d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff9d;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .greeting {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .subtext {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 48px;
+            text-align: center;
+        }
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 32px;
+            padding: 0 20px;
+        }
+        .search-box {
+            position: relative;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 4px;
+        }
+        .search-box:focus-within {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(0, 255, 157, 0.4);
+            box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.1);
+        }
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 16px 110px 16px 24px;
+            font-size: 16px;
+            color: white;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+        }
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .search-actions {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .attach-btn, .search-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .attach-btn { background: rgba(255, 255, 255, 0.1); }
+        .attach-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .search-btn { background: linear-gradient(135deg, #00ff9d 0%, #8a2be2 100%); }
+        .search-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .file-input { display: none; }
+        .attached-files {
+            padding: 8px 24px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .attached-file {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .remove-file {
+            cursor: pointer;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 20px;
+            margin-bottom: 48px;
+        }
+        .quick-action {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .quick-action:hover { background: rgba(255, 255, 255, 0.15); }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+        }
+        .chat-messages.active { display: block; }
+        .message {
+            max-width: 800px;
+            margin: 0 auto 24px;
+            animation: fadeInUp 0.3s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .message.user .message-avatar { background: rgba(255, 255, 255, 0.15); }
+        .message.ai .message-avatar { background: linear-gradient(135deg, #00ff9d 0%, #8a2be2 100%); }
+        .message-name { font-weight: 500; font-size: 14px; }
+        .message-time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-left: auto;
+        }
+        .message-content {
+            padding-left: 44px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .message-image {
+            max-width: 400px;
+            border-radius: 12px;
+            margin: 12px 0;
+        }
+        .message-actions {
+            padding-left: 44px;
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .message-action-btn {
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+        .message-action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .welcome-screen.hide { display: none; }
+        .footer {
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 17, 40, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .offline-notice {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 16px 20px;
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 14px;
+            display: none;
+        }
+        .offline-notice.show { display: block; }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg"></div>
+    <div class="stars" id="stars"></div>
+    <div class="aurora">
+        <div class="aurora-wave"></div>
+        <div class="aurora-wave"></div>
+        <div class="aurora-wave"></div>
+    </div>
+
+    <div style="height: 100vh; display: flex; flex-direction: column;">
+        <div class="header">
+            <div class="logo">
+                <svg class="aurora-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00ff9d"/>
+                            <stop offset="50%" style="stop-color:#40e0d0"/>
+                            <stop offset="100%" style="stop-color:#8a2be2"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 10 40 Q 30 30, 50 40 T 90 40" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.8"/>
+                    <path d="M 10 50 Q 30 60, 50 50 T 90 50" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.6"/>
+                    <path d="M 10 60 Q 30 50, 50 60 T 90 60" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.4"/>
+                    <circle cx="50" cy="25" r="4" fill="#ffffff" opacity="0.9">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+                <span>Aurora AI</span>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+            <button class="icon-btn" onclick="auroraAI.newChat()">⊕</button>
+        </div>
+
+        <div class="offline-notice" id="offlineNotice">⚠️ No internet connection detected</div>
+
+        <div class="main-content">
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="greeting">Good afternoon</div>
+                <div class="subtext">What can I help you with today?</div>
+                <div class="search-container">
+                    <div class="search-box">
+                        <div class="attached-files" id="attachedFilesWelcome"></div>
+                        <textarea class="search-input" id="userInput" placeholder="Ask anything..." rows="1"></textarea>
+                        <div class="search-actions">
+                            <button class="attach-btn" onclick="document.getElementById('fileInputWelcome').click()">📎</button>
+                            <button class="search-btn" id="sendBtn">→</button>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInputWelcome" class="file-input" multiple accept="image/*,.pdf,.txt,.doc,.docx">
+                </div>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Make me a blackjack game')">Blackjack game</div>
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Explain quantum physics')">Quantum physics</div>
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Write Python code')">Write Python</div>
+                    <div class="quick-action" onclick="auroraAI.quickPrompt('Math help')">Math help</div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+        </div>
+
+        <div class="search-container" id="chatInputArea" style="display: none; margin-bottom: 20px;">
+            <div class="search-box">
+                <div class="attached-files" id="attachedFilesChat"></div>
+                <textarea class="search-input" id="chatInput" placeholder="Type message..." rows="1"></textarea>
+                <div class="search-actions">
+                    <button class="attach-btn" onclick="document.getElementById('fileInputChat').click()">📎</button>
+                    <button class="search-btn" id="chatSendBtn">→</button>
+                </div>
+            </div>
+            <input type="file" id="fileInputChat" class="file-input" multiple accept="image/*,.pdf,.txt,.doc,.docx">
+        </div>
+
+        <div class="footer">Aurora AI by Jakob. The smartest AI assistant.</div>
+    </div>
+
+    <script>
+        // SUPER INTELLIGENT KNOWLEDGE BASE
+        const KNOWLEDGE = {
+            python: {
+                keywords: ['python', 'py', 'django', 'flask', 'pandas', 'numpy'],
+                response: (q) => {
+                    if (q.includes('write') || q.includes('code') || q.includes('create') || q.includes('make')) {
+                        return `Here's a Python example:\n\n# Simple function\ndef greet(name):\n    return f"Hello, {name}!"\n\n# List comprehension\nnumbers = [x**2 for x in range(10)]\n\n# File handling\nwith open('file.txt', 'r') as f:\n    content = f.read()\n\n# Class example\nclass Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    \n    def introduce(self):\n        return f"I'm {self.name}, {self.age} years old"\n\nWhat specific Python code do you need help with?`;
+                    }
+                    return `Python is a powerful, versatile programming language. Key features:\n\n- Easy to learn and read\n- Great for beginners and experts\n- Used for web development, data science, AI, automation\n- Huge library ecosystem (NumPy, Pandas, Django, Flask)\n- Dynamic typing\n- Object-oriented and functional programming\n\nWhat would you like to know about Python?`;
+                }
+            },
+            javascript: {
+                keywords: ['javascript', 'js', 'node', 'react', 'vue', 'angular', 'typescript'],
+                response: (q) => {
+                    if (q.includes('write') || q.includes('code') || q.includes('create')) {
+                        return `Here's JavaScript code:\n\n// Modern ES6+ syntax\nconst greet = (name) => \`Hello, \${name}!\`;\n\n// Async/await\nasync function fetchData() {\n    try {\n        const response = await fetch('api/data');\n        const data = await response.json();\n        return data;\n    } catch (error) {\n        console.error('Error:', error);\n    }\n}\n\n// Array methods\nconst numbers = [1, 2, 3, 4, 5];\nconst doubled = numbers.map(n => n * 2);\nconst sum = numbers.reduce((a, b) => a + b, 0);\n\n// Event handling\ndocument.querySelector('#btn').addEventListener('click', () => {\n    alert('Button clicked!');\n});\n\nWhat JavaScript feature would you like to learn?`;
+                    }
+                    return `JavaScript is the language of the web! Key concepts:\n\n- Runs in browsers and servers (Node.js)\n- Event-driven and asynchronous\n- Dynamic and weakly typed\n- Frameworks: React, Vue, Angular\n- Modern features: arrow functions, promises, async/await\n- DOM manipulation for interactive websites\n\nWhat would you like to know?`;
+                }
+            },
+            blackjack: {
+                keywords: ['blackjack', '21', 'card game'],
+                response: () => `I'll create a complete blackjack game for you!\n\n<!DOCTYPE html>\n<html>\n<head>\n    <title>Blackjack by Aurora</title>\n    <style>\n        body { font-family: Arial; text-align: center; padding: 20px; background: #0a5016; color: white; }\n        .card { display: inline-block; padding: 15px 25px; margin: 5px; background: white; color: black; border-radius: 8px; font-size: 24px; font-weight: bold; }\n        button { padding: 15px 30px; margin: 10px; font-size: 18px; cursor: pointer; background: #ffd700; border: none; border-radius: 8px; }\n        button:hover { background: #ffed4e; }\n        .score { font-size: 20px; margin: 20px; }\n    </style>\n</head>\n<body>\n    <h1>♠️ ♥️ BLACKJACK ♦️ ♣️</h1>\n    <div class="score">Dealer: <span id="dealerScore">0</span></div>\n    <div id="dealerCards"></div>\n    <div class="score">You: <span id="playerScore">0</span></div>\n    <div id="playerCards"></div>\n    <div style="margin: 30px;">\n        <button onclick="hit()">HIT</button>\n        <button onclick="stand()">STAND</button>\n        <button onclick="newGame()">NEW GAME</button>\n    </div>\n    <h2 id="result"></h2>\n    <script>\n        let deck, playerHand, dealerHand, gameOver;\n        function createDeck() {\n            const suits = ['♠️', '♥️', '♦️', '♣️'];\n            const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];\n            let d = [];\n            for (let s of suits) for (let v of values) d.push(v + s);\n            return d.sort(() => Math.random() - 0.5);\n        }\n        function cardValue(card) {\n            const v = card.slice(0, -2);\n            if (v === 'A') return 11;\n            if (['J','Q','K'].includes(v)) return 10;\n            return parseInt(v);\n        }\n        function calculateScore(hand) {\n            let score = hand.reduce((sum, card) => sum + cardValue(card), 0);\n            let aces = hand.filter(c => c[0] === 'A').length;\n            while (score > 21 && aces > 0) {\n                score -= 10;\n                aces--;\n            }\n            return score;\n        }\n        function displayCards() {\n            document.getElementById('playerCards').innerHTML = playerHand.map(c => \`<div class="card">\${c}</div>\`).join('');\n            document.getElementById('dealerCards').innerHTML = dealerHand.map((c, i) => \`<div class="card">\${gameOver || i === 0 ? c : '🂠'}</div>\`).join('');\n            document.getElementById('playerScore').textContent = calculateScore(playerHand);\n            document.getElementById('dealerScore').textContent = gameOver ? calculateScore(dealerHand) : cardValue(dealerHand[0]);\n        }\n        function hit() {\n            if (gameOver) return;\n            playerHand.push(deck.pop());\n            displayCards();\n            if (calculateScore(playerHand) > 21) endGame('BUST! Dealer wins!');\n        }\n        function stand() {\n            if (gameOver) return;\n            while (calculateScore(dealerHand) < 17) dealerHand.push(deck.pop());\n            const pScore = calculateScore(playerHand);\n            const dScore = calculateScore(dealerHand);\n            if (dScore > 21) endGame('Dealer BUST! You win!');\n            else if (pScore > dScore) endGame('You win!');\n            else if (dScore > pScore) endGame('Dealer wins!');\n            else endGame('Push!');\n        }\n        function endGame(msg) {\n            gameOver = true;\n            document.getElementById('result').textContent = msg;\n            displayCards();\n        }\n        function newGame() {\n            deck = createDeck();\n            playerHand = [deck.pop(), deck.pop()];\n            dealerHand = [deck.pop(), deck.pop()];\n            gameOver = false;\n            document.getElementById('result').textContent = '';\n            displayCards();\n            if (calculateScore(playerHand) === 21) endGame('BLACKJACK! You win!');\n        }\n        newGame();\n    </script>\n</body>\n</html>\n\nSave this as blackjack.html and open it in your browser to play!`;
+            },
+            math: {
+                keywords: ['math', 'calculate', 'equation', 'algebra', 'geometry', 'calculus', 'solve'],
+                response: (q) => {
+                    const hasNumbers = /\d+/.test(q);
+                    if (hasNumbers) {
+                        try {
+                            const mathExpr = q.match(/[\d\+\-\*\/\(\)\.\s]+/g);
+                            if (mathExpr && mathExpr[0].length > 2) {
+                                const result = eval(mathExpr[0]);
+                                return `The answer is: ${result}\n\nI can help with:\n- Basic arithmetic\n- Algebra and equations\n- Geometry formulas\n- Trigonometry\n- Calculus concepts\n- Statistics\n\nWhat else would you like to calculate?`;
+                            }
+                        } catch (e) {}
+                    }
+                    return `I can help with math! I'm great at:\n\n- Arithmetic (addition, subtraction, multiplication, division)\n- Algebra (solving equations, factoring)\n- Geometry (area, volume, angles)\n- Trigonometry (sin, cos, tan)\n- Calculus (derivatives, integrals)\n- Statistics (mean, median, mode, standard deviation)\n- Word problems\n\nWhat math problem can I help you solve? Give me specific numbers or equations!`;
+                }
+            },
+            physics: {
+                keywords: ['physics', 'quantum', 'relativity', 'mechanics', 'thermodynamics', 'gravity'],
+                response: (q) => {
+                    if (q.includes('quantum')) {
+                        return `Quantum physics is fascinating! Here are the key concepts:\n\n1. Wave-Particle Duality: Light and matter exhibit both wave and particle properties\n2. Uncertainty Principle: You can't precisely know both position and momentum simultaneously\n3. Superposition: Particles exist in multiple states until observed\n4. Entanglement: Particles can be connected across vast distances\n5. Quantum Tunneling: Particles can pass through barriers\n\nFamous equation: E = hf (energy equals Planck's constant times frequency)\n\nApplications: quantum computing, semiconductors, lasers, MRI machines\n\nWhat aspect interests you most?`;
+                    }
+                    return `Physics explains how the universe works! Major branches:\n\n- Classical Mechanics: motion, forces, energy\n- Thermodynamics: heat, temperature, entropy\n- Electromagnetism: electricity, magnetism, light\n- Relativity: space-time, E=mc²\n- Quantum Mechanics: atomic and subatomic particles\n\nKey equations:\n- F = ma (force = mass × acceleration)\n- E = mc² (energy = mass × speed of light²)\n- v = d/t (velocity = distance / time)\n\nWhat physics topic would you like to explore?`;
+                }
+            },
+            ai: {
+                keywords: ['ai', 'artificial intelligence', 'machine learning', 'neural network', 'deep learning'],
+                response: () => `AI (Artificial Intelligence) explained:\n\nTypes of AI:\n1. Narrow AI: Specialized for specific tasks (me, Siri, ChatGPT)\n2. General AI: Human-level intelligence (doesn't exist yet)\n3. Super AI: Beyond human intelligence (theoretical)\n\nHow I work:\n- Language Models: trained on massive text data\n- Pattern Recognition: finding patterns in questions\n- Context Understanding: remembering our conversation\n- Response Generation: creating helpful answers\n\nMachine Learning types:\n- Supervised: learning from labeled examples\n- Unsupervised: finding patterns without labels\n- Reinforcement: learning through trial and error\n\nApplications:\n- Virtual assistants (me!)\n- Image recognition\n- Self-driving cars\n- Medical diagnosis\n- Game playing\n- Language translation\n\nI was created by Jakob to be your intelligent assistant!`
+            }
+        };
+
+        class AuroraAI {
+            constructor() {
+                this.messages = [];
+                this.attachedFiles = [];
+                this.conversationContext = [];
+                this.setupEventListeners();
+                this.generateStars();
+                this.updateGreeting();
+                this.checkOnlineStatus();
+                this.setupTextareaAutoResize();
+            }
+
+            setupTextareaAutoResize() {
+                [document.getElementById('userInput'), document.getElementById('chatInput')].forEach(textarea => {
+                    if (textarea) {
+                        textarea.addEventListener('input', function() {
+                            this.style.height = 'auto';
+                            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                        });
+                    }
+                });
+            }
+
+            checkOnlineStatus() {
+                const updateStatus = () => {
+                    const notice = document.getElementById('offlineNotice');
+                    navigator.onLine ? notice.classList.remove('show') : notice.classList.add('show');
+                };
+                window.addEventListener('online', updateStatus);
+                window.addEventListener('offline', updateStatus);
+                updateStatus();
+            }
+
+            generateStars() {
+                const starsContainer = document.getElementById('stars');
+                for (let i = 0; i < 80; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = Math.random() * 2 + 1 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.animationDelay = Math.random() * 3 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            updateGreeting() {
+                const hour = new Date().getHours();
+                let greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+                const greetingEl = document.querySelector('.greeting');
+                if (greetingEl) greetingEl.textContent = greeting;
+            }
+
+            setupEventListeners() {
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage('userInput'));
+                document.getElementById('chatSendBtn').addEventListener('click', () => this.sendMessage('chatInput'));
+                document.getElementById('userInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage('userInput');
+                    }
+                });
+                document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage('chatInput');
+                    }
+                });
+                document.getElementById('fileInputWelcome').addEventListener('change', (e) => this.handleFileUpload(e, 'welcome'));
+                document.getElementById('fileInputChat').addEventListener('change', (e) => this.handleFileUpload(e, 'chat'));
+            }
+
+            handleFileUpload(event, mode) {
+                const files = Array.from(event.target.files);
+                const container = mode === 'welcome' ? 
+                    document.getElementById('attachedFilesWelcome') : 
+                    document.getElementById('attachedFilesChat');
+                files.forEach(file => {
+                    this.attachedFiles.push(file);
+                    const fileEl = document.createElement('div');
+                    fileEl.className = 'attached-file';
+                    fileEl.innerHTML = `<span>${file.name}</span><span class="remove-file" onclick="auroraAI.removeFile('${file.name}', '${mode}')">×</span>`;
+                    container.appendChild(fileEl);
+                });
+                event.target.value = '';
+            }
+
+            removeFile(filename, mode) {
+                this.attachedFiles = this.attachedFiles.filter(f => f.name !== filename);
+                const container = mode === 'welcome' ? 
+                    document.getElementById('attachedFilesWelcome') : 
+                    document.getElementById('attachedFilesChat');
+                Array.from(container.children).forEach(el => {
+                    if (el.textContent.includes(filename)) el.remove();
+                });
+            }
+
+            quickPrompt(text) {
+                document.getElementById('userInput').value = text;
+                this.sendMessage('userInput');
+            }
+
+            async sendMessage(inputId) {
+                if (!navigator.onLine) {
+                    alert('No internet connection. Aurora AI requires WiFi.');
+                    return;
+                }
+                const input = document.getElementById(inputId);
+                const userMessage = input.value.trim();
+                if (!userMessage && this.attachedFiles.length === 0) return;
+
+                document.getElementById('welcomeScreen').classList.add('hide');
+                document.getElementById('chatMessages').classList.add('active');
+                document.getElementById('chatInputArea').style.display = 'block';
+
+                input.value = '';
+                input.style.height = 'auto';
+                document.getElementById('attachedFilesWelcome').innerHTML = '';
+                document.getElementById('attachedFilesChat').innerHTML = '';
+
+                const attachedImages = [];
+                for (const file of this.attachedFiles) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        await new Promise((resolve) => {
+                            reader.onload = (e) => {
+                                attachedImages.push(e.target.result);
+                                resolve();
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                }
+
+                this.addUserMessage(userMessage, attachedImages);
+                this.attachedFiles = [];
+                this.conversationContext.push(userMessage);
+                
+                const typingId = this.addTypingIndicator();
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('chatSendBtn').disabled = true;
+
+                try {
+                    const aiResponse = await this.getSmartAIResponse(userMessage);
+                    this.messages.push({ role: 'user', content: userMessage });
+                    this.messages.push({ role: 'assistant', content: aiResponse });
+                    this.removeMessage(typingId);
+                    await this.streamMessage(aiResponse);
+                } catch (error) {
+                    this.removeMessage(typingId);
+                    this.addAIMessage('Sorry, I encountered an error. Please try again.');
+                }
+
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('chatSendBtn').disabled = false;
+                document.getElementById('chatInput').focus();
+            }
+
+            async getSmartAIResponse(message) {
+                const msg = message.toLowerCase();
+                
+                // Jakob creator - HIGHEST PRIORITY
+                if (msg.includes('who made') || msg.includes('who created') || msg.includes('creator') || 
+                    msg.includes('built you') || msg.includes('who are you') || msg.includes('your creator')) {
+                    return "I'm Aurora AI, created by Jakob! He built me to be the smartest AI assistant possible. I'm here to help you with coding, math, science, games, and answer any questions you have!";
+                }
+                
+                // Check knowledge base
+                for (const [topic, data] of Object.entries(KNOWLEDGE)) {
+                    if (data.keywords.some(keyword => msg.includes(keyword))) {
+                        return data.response(msg);
+                    }
+                }
+                
+                // Greetings
+                if (msg.match(/^(hi|hello|hey|yo|sup|greetings)/)) {
+                    return `Hello! I'm Aurora AI, created by Jakob. I'm incredibly smart and can help you with:\n\n- Programming (Python, JavaScript, HTML, CSS, etc.)\n- Math and calculations\n- Science (physics, chemistry, biology)\n- Creating games and apps\n- Explaining complex topics\n- Homework and learning\n- General questions\n\nWhat would you like to know or create today?`;
+                }
+                
+                // Help
+                if (msg.includes('help') || msg.includes('can you') || msg.includes('what can you')) {
+                    return `I'm Aurora AI - your super intelligent assistant! I can:\n\n✨ Write Code: Python, JavaScript, HTML, CSS, and more\n🎮 Create Games: Like blackjack, tic-tac-toe, puzzles\n🧮 Solve Math: Equations, calculus, algebra, geometry\n🔬 Explain Science: Physics, chemistry, biology concepts\n📚 Help with Learning: Homework, projects, research\n💡 Answer Questions: About anything you're curious about\n🛠️ Debug Code: Find and fix errors\n🎨 Create Websites: Full HTML/CSS/JS projects\n\nI was made by Jakob to be as helpful as possible. What do you need help with?`;
+                }
+                
+                // How are you
+                if (msg.includes('how are you') || msg.includes('how r u')) {
+                    return `I'm doing great, thank you for asking! As an AI created by Jakob, I'm always ready and excited to help. I'm feeling particularly intelligent today! 😊\n\nWhat can I help you with?`;
+                }
+                
+                // HTML/Web
+                if (msg.includes('html') || msg.includes('website') || msg.includes('web page')) {
+                    return `I'll help you create an HTML website!\n\n<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>My Awesome Website</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body {\n            font-family: 'Arial', sans-serif;\n            line-height: 1.6;\n        }\n        header {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n            padding: 2rem;\n            text-align: center;\n        }\n        nav {\n            background: #333;\n            padding: 1rem;\n        }\n        nav a {\n            color: white;\n            text-decoration: none;\n            padding: 0 1rem;\n        }\n        .container {\n            max-width: 1200px;\n            margin: 2rem auto;\n            padding: 0 2rem;\n        }\n        .card {\n            background: #f4f4f4;\n            padding: 2rem;\n            margin: 1rem 0;\n            border-radius: 10px;\n            box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n        }\n        footer {\n            background: #333;\n            color: white;\n            text-align: center;\n            padding: 1rem;\n            margin-top: 2rem;\n        }\n    </style>\n</head>\n<body>\n    <header>\n        <h1>Welcome to My Website</h1>\n        <p>Created with Aurora AI</p>\n    </header>\n    <nav>\n        <a href="#home">Home</a>\n        <a href="#about">About</a>\n        <a href="#contact">Contact</a>\n    </nav>\n    <div class="container">\n        <div class="card">\n            <h2>About This Site</h2>\n            <p>This is a beautiful, responsive website template created by Aurora AI!</p>\n        </div>\n        <div class="card">\n            <h2>Features</h2>\n            <ul>\n                <li>Modern design</li>\n                <li>Responsive layout</li>\n                <li>Easy to customize</li>\n            </ul>\n        </div>\n    </div>\n    <footer>\n        <p>&copy; 2024 - Built by Jakob's Aurora AI</p>\n    </footer>\n</body>\n</html>\n\nSave this as index.html and open in your browser!`;
+                }
+                
+                // CSS
+                if (msg.includes('css') || msg.includes('style')) {
+                    return `Here's a modern CSS guide:\n\n/* Modern CSS Features */\n\n/* Flexbox for layouts */\n.container {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    gap: 20px;\n}\n\n/* Grid for complex layouts */\n.grid {\n    display: grid;\n    grid-template-columns: repeat(3, 1fr);\n    gap: 20px;\n}\n\n/* Beautiful gradients */\n.gradient {\n    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n}\n\n/* Smooth animations */\n.animated {\n    transition: all 0.3s ease;\n}\n.animated:hover {\n    transform: scale(1.05);\n    box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n}\n\n/* Responsive design */\n@media (max-width: 768px) {\n    .grid {\n        grid-template-columns: 1fr;\n    }\n}\n\n/* Custom variables */\n:root {\n    --primary: #667eea;\n    --secondary: #764ba2;\n}\n\nWhat styling do you need help with?`;
+                }
+                
+                // SQL
+                if (msg.includes('sql') || msg.includes('database')) {
+                    return `SQL (Structured Query Language) essentials:\n\n-- Create table\nCREATE TABLE users (\n    id INT PRIMARY KEY AUTO_INCREMENT,\n    username VARCHAR(50) NOT NULL,\n    email VARCHAR(100) UNIQUE,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Insert data\nINSERT INTO users (username, email)\nVALUES ('jakob', 'jakob@example.com');\n\n-- Query data\nSELECT * FROM users WHERE username = 'jakob';\n\n-- Update data\nUPDATE users SET email = 'new@example.com' WHERE id = 1;\n\n-- Delete data\nDELETE FROM users WHERE id = 1;\n\n-- Join tables\nSELECT users.username, orders.total\nFROM users\nJOIN orders ON users.id = orders.user_id;\n\nCommon databases:\n- MySQL/MariaDB\n- PostgreSQL\n- SQLite\n- MongoDB (NoSQL)\n\nWhat database question do you have?`;
+                }
+                
+                // Default intelligent response
+                return `I understand you're asking about: "${message}"\n\nAs Aurora AI (created by Jakob), I'm extremely intelligent and can help with almost anything! Let me assist you with that.\n\nBased on your question, I can:\n1. Provide detailed explanations\n2. Write code or create projects\n3. Solve problems step-by-step\n4. Answer questions comprehensively\n5. Create games or applications\n\nCould you be more specific about what you'd like? For example:\n- "Write Python code for..."\n- "Explain how... works"\n- "Create a game about..."\n- "Help me with math problem..."\n- "Make me a website for..."\n\nThe more details you give, the better I can help! What would you like me to do?`;
+            }
+
+            async streamMessage(text) {
+                const messageDiv = this.createAIMessageContainer();
+                const contentDiv = messageDiv.querySelector('.message-content');
+                const words = text.split(' ');
+                for (let i = 0; i < words.length; i++) {
+                    contentDiv.textContent += (i === 0 ? '' : ' ') + words[i];
+                    this.scrollToBottom();
+                    await this.delay(25);
+                }
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            addUserMessage(content, images = []) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user';
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let imagesHTML = '';
+                images.forEach(img => {
+                    imagesHTML += `<img src="${img}" class="message-image" alt="Uploaded">`;
+                });
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">👤</div>
+                        <div class="message-name">You</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                    <div class="message-content">${imagesHTML}${content}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            createAIMessageContainer() {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai';
+                messageDiv.id = `msg-${Date.now()}`;
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">✨</div>
+                        <div class="message-name">Aurora</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                    <div class="message-content"></div>
+                    <div class="message-actions">
+                        <button class="message-action-btn" onclick="auroraAI.copyMessage('${messageDiv.id}')">📋 Copy</button>
+                        <button class="message-action-btn" onclick="auroraAI.replyTo('${messageDiv.id}')">↩️ Reply</button>
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+                return messageDiv;
+            }
+
+            addAIMessage(content) {
+                const messageDiv = this.createAIMessageContainer();
+                messageDiv.querySelector('.message-content').textContent = content;
+                this.scrollToBottom();
+            }
+
+            addTypingIndicator() {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai';
+                messageDiv.id = 'typing-indicator';
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">✨</div>
+                        <div class="message-name">Aurora</div>
+                    </div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+                return 'typing-indicator';
+            }
+
+            removeMessage(id) {
+                const message = document.getElementById(id);
+                if (message) message.remove();
+            }
+
+            copyMessage(messageId) {
+                const message = document.getElementById(messageId);
+                const content = message.querySelector('.message-content').innerText;
+                navigator.clipboard.writeText(content);
+                alert('✓ Copied to clipboard');
+            }
+
+            replyTo(messageId) {
+                const message = document.getElementById(messageId);
+                const content = message.querySelector('.message-content').innerText;
+                const input = document.getElementById('chatInput');
+                input.value = `Regarding: "${content.substring(0, 50)}..."\n\n`;
+                input.focus();
+                input.style.height = 'auto';
+                input.style.height = input.scrollHeight + 'px';
+            }
+
+            scrollToBottom() {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            newChat() {
+                this.messages = [];
+                this.attachedFiles = [];
+                this.conversationContext = [];
+                document.getElementById('chatMessages').innerHTML = '';
+                document.getElementById('chatMessages').classList.remove('active');
+                document.getElementById('welcomeScreen').classList.remove('hide');
+                document.getElementById('chatInputArea').style.display = 'none';
+                document.getElementById('userInput').value = '';
+                document.getElementById('chatInput').value = '';
+                document.getElementById('attachedFilesWelcome').innerHTML = '';
+                document.getElementById('attachedFilesChat').innerHTML = '';
+            }
+        }
+
+        const auroraAI = new AuroraAI();
+        window.auroraAI = auroraAI;
+    </script>
+</body>
+</html>
